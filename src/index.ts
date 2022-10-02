@@ -1,16 +1,16 @@
 const cron = require('node-cron');
 
 //daily statistics mail
-const { sendDailyMail } = require('./mailer');
+import { sendDailyMail } from './mailer';
 
 //function for updating tweet data in database (likes and retweets)
-const { updateTweetData } = require('./updateTweetDataInDB')
+import { updateTweetData } from './updateTweetDataInDB';
 
 //function for getting blocked users
-const { getBlockedUsers, sendTweet } = require('./twitter')
+import { getBlockedUsers, sendTweet } from './twitter';
 
 //function for checking if today is muswiese
-const { checkIfTodayMuswiese } = require('./muswiesenContent.js');
+import { checkIfTodayMuswiese } from './muswiesenContent';
 
 /*//Cron-jobs to start different
 //  tweets and get blocked users//*/
