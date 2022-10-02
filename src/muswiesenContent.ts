@@ -1,20 +1,20 @@
-const { createDateAsUTC } = require('./helpers')
+import { createDateAsUTC } from './helpers';
 
 //dates for muswiese 2022, 2023
-const muswiese22Start =  new Date(Date.UTC(2022, 9, 8, 12, 12, 0));
-const muswiese22End = new Date(Date.UTC(2022, 9, 13, 23, 59, 0));
-const muswiese23Start = new Date(Date.UTC(2023, 9, 7, 12, 15, 0));
-const muswiese23End = new Date(Date.UTC(2023, 9, 12, 12, 15, 0));
+const muswiese22Start: any =  new Date(Date.UTC(2022, 9, 8, 12, 12, 0));
+const muswiese22End: any = new Date(Date.UTC(2022, 9, 13, 23, 59, 0));
+const muswiese23Start: any = new Date(Date.UTC(2023, 9, 7, 12, 15, 0));
+const muswiese23End: any = new Date(Date.UTC(2023, 9, 12, 12, 15, 0));
 
 
 // One day in milliseconds
-const oneDay = 1000 * 60 * 60 * 24;
+const oneDay: number = 1000 * 60 * 60 * 24;
 
 //Date of today
-const today = createDateAsUTC();
+const today: any = createDateAsUTC();
 
 // Calculating the time difference between 2022 or 2023 muswiese and today
-calculateTimeToMuswiese = () => {
+function calculateTimeToMuswiese (): number {
   //muswiese22 has not started yet
   if (today < muswiese22Start) {
     return muswiese22Start - today;
@@ -24,7 +24,7 @@ calculateTimeToMuswiese = () => {
   }
 };
 
-const checkIfTodayMuswiese = () => {
+export function checkIfTodayMuswiese (): boolean {
   if ((today > muswiese22Start && today < muswiese22End) || (today > muswiese23Start && today < muswiese23End)) {
     return true
   } else {
@@ -33,7 +33,7 @@ const checkIfTodayMuswiese = () => {
 };
 
 //MuswiesenTweet
-const getMuswiesenContent = () => {
+export function getMuswiesenContent (): object {
   //get time difference for umrechnung to days and hours
   const diffInUnixTime = calculateTimeToMuswiese();
 
@@ -51,5 +51,3 @@ const getMuswiesenContent = () => {
 
   return {text: `Ezz sanns bloaß noch ${diffInFullDays} Dooch und ${remainingHours} Schdund bis zur Muswies!`};
 };
-
-module.exports = { getMuswiesenContent, checkIfTodayMuswiese };

@@ -1,17 +1,21 @@
 require('dotenv').config();
 const moment = require('moment')
 const sgMail = require('@sendgrid/mail')
-const { loggErrors } = require('./loggErrors.js');
+import { loggErrors } from './loggErrors';
 
 //setup mongoose connection
 const mongoose = require('mongoose');
 mongoose.connect(process.env.MONGOCONNECTION);
 
 //get mongoose Schemas for retweets, own tweets and errors
-const { retweetSchema } = require('./schemas/retweetsSchema');
-const { ownTweetsSchema } = require('./schemas/ownTweetsSchema');
-const { errorSchema } = require('./schemas/errorSchema');
-const { createDateAsUTC } = require('./helpers.js');
+import { retweetSchema } from './schemas/retweetsSchema';
+import { ownTweetsSchema } from './schemas/ownTweetsSchema';
+import { errorSchema } from './schemas/errorSchema';
+import { createDateAsUTC } from './helpers';
+
+//import interfaces
+import { Tweet } from './interfaces/tweet.interface';
+import { Error } from './interfaces/error.interface';
 
 //set up mongoose models
 const ownTweetsModel = mongoose.model('ownTweets', ownTweetsSchema);
@@ -19,39 +23,39 @@ const retweetModel = mongoose.model('Retweets', retweetSchema);
 const errorModel = mongoose.model('errorSchema', errorSchema);
 
 //calculate time objects for db queries
-const getYesterdayStart = () => {
+const getYesterdayStart = (): Date => {
   return moment().utcOffset(-2).subtract(1, 'days').startOf('day');
 };
 
-const getYesterdayEnd = () => {
+const getYesterdayEnd = (): Date => {
   return moment().utcOffset(-2).subtract(1, 'days').endOf('day')
 };
 
 //get all own tweets from yesterday
-const getOwnTweets = async () => {
+async function getOwnTweets (): Promise<Array<any>> {
 
   //db query for yesterdays own tweets
-  const ownTweets = await ownTweetsModel.find( { 'tweet.created_at': { $gte: getYesterdayStart(), $lte: getYesterdayEnd() } } )
+  const ownTweets: Array<Tweet> = await ownTweetsModel.find( { 'tweet.created_at': { $gte: getYesterdayStart(), $lte: getYesterdayEnd() } } )
   return ownTweets
 };
 
 //get all retweets from yesterday
-const getRetweets = async () => {
-  const retweets = await retweetModel.find( { 'created_at': { $gte: getYesterdayStart(), $lte: getYesterdayEnd() } } );
+async function getRetweets (): Promise<Array<Tweet>> {
+  const retweets: Array<Tweet> = await retweetModel.find( { 'created_at': { $gte: getYesterdayStart(), $lte: getYesterdayEnd() } } );
 
   return retweets
 };
 
 //get all blocked Tweets from yesterday
-const getBlockedTweets = async () => {
-  const blockedTweets = await errorModel.find( { 'category': 'BlockedWord', 'date': { $gte: getYesterdayStart(), $lte: getYesterdayEnd() } } );
+async function getBlockedTweets (): Promise<Array<Error>> {
+  const blockedTweets: Array<Error> = await errorModel.find( { 'category': 'BlockedWord', 'date': { $gte: getYesterdayStart(), $lte: getYesterdayEnd() } } );
 
   return blockedTweets
 };
 
 //get all tweets from blocked users from yesterday
-const getBlockedUserTweets = async () => {
-  const blockedUserTweets = await errorModel.find( { 'category': 'BlockedUser', 'date': { $gte: getYesterdayStart(), $lte: getYesterdayEnd() } } );
+async function getBlockedUserTweets (): Promise<Array<Error>> {
+  const blockedUserTweets: Array<Error> = await errorModel.find( { 'category': 'BlockedUser', 'date': { $gte: getYesterdayStart(), $lte: getYesterdayEnd() } } );
   
   return blockedUserTweets
 };
@@ -61,10 +65,10 @@ sgMail.setApiKey(process.env.SENDGRID_API)
 
 //create E-Mail-Message
 const createMsg = async () => {
-  const retweets = await getRetweets();
+  const retweets: Array<Tweet> = await getRetweets();
   const ownTweets = await getOwnTweets();
-  const blockedTweets = await getBlockedTweets();
-  const blockedUserTweets = await getBlockedUserTweets();
+  const blockedTweets: Array<Error> = await getBlockedTweets();
+  const blockedUserTweets: Array<Error> = await getBlockedUserTweets();
 
 
   return {to: process.env.SENDGRID_RECIPIENT,
@@ -88,7 +92,7 @@ const createMsg = async () => {
 };
 
 //send daily statistics about own tweets and retweets
-const sendDailyMail = async () => {
+export async function sendDailyMail () {
   const msg = await createMsg()
   sgMail
     .send(msg)
@@ -118,5 +122,3 @@ const sendNotificationMail = async () => {
 };   
 
 sendNotificationMail();
-
-module.exports = { sendDailyMail }

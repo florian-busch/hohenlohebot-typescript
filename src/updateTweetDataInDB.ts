@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { loggErrors } = require('./loggErrors');
+import { loggErrors } from './loggErrors';
 
 //setup Twit
 const Twit = require('twit');
@@ -14,7 +14,7 @@ const mongoose = require('mongoose');
 mongoose.connect(process.env.MONGOCONNECTION);
 
 //get Schema from schema file
-const { ownTweetsSchema } = require('./schemas/ownTweetsSchema');
+import { ownTweetsSchema } from './schemas/ownTweetsSchema';
 
 //Model setup
 const ownTweetsModel = mongoose.model('ownTweets', ownTweetsSchema);
@@ -31,7 +31,7 @@ const updateOneTweetInDB = tweetData => {
     },
     options, function (err, doc) {
       if (err == 'Error: No status found with that ID.') {
-        loggErrors( {category: 'DbUpdates', message: err, tweet: tweetDate } )
+        loggErrors( {category: 'DbUpdates', message: err, tweet: tweetData } )
       } else {
         console.log(doc)
       }
@@ -39,10 +39,10 @@ const updateOneTweetInDB = tweetData => {
 };
 
 //delete tweets in DB that can't be found on twitter anymore and logg error
-const deleteTweet = async (ID) => {
+const deleteTweet = async (ID: string) => {
   ownTweetsModel.findOneAndDelete( { 'tweet.id_str': ID }, function (err, doc) {
     if (err) {
-      loggErrors( {category: 'Delete', message: err, tweet: tweet } );
+      loggErrors( {category: 'Delete', message: err, tweet: doc.tweet } );
     } else {
       loggErrors( {category: 'MissingID', message: 'No tweet found with that ID on Twitter. DB-Entry deleted', tweet: doc.tweet } )
     }
@@ -51,16 +51,16 @@ const deleteTweet = async (ID) => {
 
 //get IDs from own tweets (not retweets) from db
 const getTweetIDsFromDB = async () => {
-  let IDs = [];
+  let IDs: Array<string> = [];
   await ownTweetsModel.find()
     .then(tweets => tweets.forEach(data => IDs.push(data.tweet.id_str)))
-    .catch(err => loggErrors( {category: 'TweetDB', message: err, tweet: data.tweet } ))
+    .catch(err => loggErrors( {category: 'TweetDB', message: err } ))
 
   return IDs;
 };
 
 //update data for all own tweets in db
-const updateTweetData = async () => {
+export async function updateTweetData (): Promise<void> {
   //fetch tweet IDs
   const tweetIDs = await getTweetIDsFromDB();
 
@@ -71,12 +71,10 @@ const updateTweetData = async () => {
       if (err == 'Error: No status found with that ID.') {
         deleteTweet(ID)
       } else if (err) {
-        loggErrors( { category: tweetRetrieving, message: err })
+        loggErrors( { category: 'tweetRetrieving', message: err })
       } else {
         updateOneTweetInDB(data)
       };
     })
     );
 };
-
-module.exports = { updateTweetData };

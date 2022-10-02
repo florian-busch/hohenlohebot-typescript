@@ -2,13 +2,16 @@ require('dotenv').config();
 const Twit = require('twit');
 
 //logger functions
-const { loggRetweets } = require('./loggRetweets');
-const { loggOwnTweets } = require('./loggOwnTweets.js');
-const { loggErrors } = require('./loggErrors.js');
+import { loggRetweets }from './loggRetweets';
+import { loggOwnTweets } from './loggOwnTweets';
+import { loggErrors } from './loggErrors';
 
 //external functions for tweet content
-const { getMuswiesenContent } = require('./muswiesenContent.js');
-const { getDatabaseContent, markAsPosted } = require('./getDatabaseContent.js');
+import { getMuswiesenContent } from './muswiesenContent';
+import { getDatabaseContent, markAsPosted } from './getDatabaseContent';
+
+//interfaces
+import { Tweet } from './interfaces/tweet.interface';
 
 //setup Twit
 const T = new Twit({
@@ -19,11 +22,11 @@ const T = new Twit({
 });
 
 //get list of blocked users -> will be checked before retweeting
-let blocks = [];
-const getBlockedUsers = () => {
+let blocks: Array<number> = [];
+export function getBlockedUsers () {
   T.get('blocks/ids', function (err, data, response) {
     if (err) {
-      console.log(err)
+      return console.log(err)
     } else {
       return blocks = data.ids}
     }
@@ -33,7 +36,9 @@ const getBlockedUsers = () => {
 //check tweet for words that should not be retweeted (returns true if one or more words are in tweet)
 const blockedWords = process.env.BLOCKEDWORDS
 //split blockedWords to turn string into array
-const checkForBlockedWords = tweet => blockedWords.split(',').some(word => tweet.toLowerCase().includes(word));
+export function checkForBlockedWords (tweet: string): boolean {
+  return blockedWords.split(',').some(word => tweet.toLowerCase().includes(word));
+};
 
 //key words bot listens for
 const retweetTriggers = process.env.RETWEETTRIGGERS;
@@ -42,7 +47,7 @@ let stream = T.stream('statuses/filter', { track: retweetTriggers });
 stream.on('tweet', gotTweet);
 
 //retweet tweets from users that on bots block list and whose tweets that don't contain blocked words
-function gotTweet(tweet) {
+function gotTweet(tweet: Tweet) {
   if (blocks.includes(tweet.user.id)) {
     loggErrors( {category: 'BlockedUser', message: `Blocked User with id: ${tweet.user.id}`, tweet: tweet } )
   } else if (checkForBlockedWords(tweet.text)) {
@@ -63,14 +68,14 @@ function gotTweet(tweet) {
     };
     //if other errors at retweeting
   } else {
-    loggErrors( {category: 'ErrorRetweeting', message: err, tweet: tweet } );
+    loggErrors( {category: 'ErrorRetweeting', tweet: tweet } );
   }
 };
 console.log('Bot listening');
 
 //function for tweeting Muswiesentweet, Sprüche and Vokabeln
-const sendTweet = async category => {
-  let content = '';
+export async function sendTweet (category: string) {
+  let content;
   if (category == 'MuswiesenCountdown') {
     content = await getMuswiesenContent();
   } else if (category == 'Vokabel' || category == 'Spruch' || category == 'daysOfMuswiese'  ) {
@@ -81,10 +86,10 @@ const sendTweet = async category => {
   if (content != null) {
     T.post('statuses/update', { status: content.text }, (err, data, response) => {
         if (err) {
-          tweet = {
+          let tweet = {
             text: content.text
           }
-          loggErrors( {category: 'TweetPost', message: err, tweet: tweet } )
+          loggErrors( {category: 'TweetPost', message: err, tweet: tweet.text } )
         } else {
           //mark tweet as posted in db and logg tweet to db
           console.log(data)
