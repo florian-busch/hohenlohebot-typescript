@@ -3,15 +3,17 @@ const mongoose = require('mongoose');
 mongoose.connect(process.env.MONGOCONNECTION);
 
 //get helpers
-const {createDateAsUTC } = require('./helpers')
+import {createDateAsUTC } from './helpers';
+
+import { Error } from './interfaces/error.interface';
 
 //get mongoose Schema for retweets
-const { errorSchema } = require('./schemas/errorSchema');
+import { errorSchema } from './schemas/errorSchema';
 
 //create mongoose model
 const errorModel = mongoose.model('errorSchema', errorSchema);
 
-const loggErrors = (error) => {
+export function loggErrors (error: Error) {
     const newError = new errorModel({
         category: error.category,
         date: createDateAsUTC(),
@@ -22,5 +24,3 @@ const loggErrors = (error) => {
     newError.save().then(response => console.log(response))
     .catch(err => loggErrors( {category: 'LoggingError', message: err } ));
 };
-
-module.exports = { loggErrors };

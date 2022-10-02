@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 mongoose.connect(process.env.MONGOCONNECTION);
 
 //get Schema from schema file
-const { textSchema } = require('./schemas/textSchema');
+import { textSchema } from './schemas/textSchema';
 
 //get helpers
 import { createDateAsUTC } from './helpers';
@@ -12,12 +12,12 @@ import { createDateAsUTC } from './helpers';
 const Text = mongoose.model('Text', textSchema);
 
 //mark texts as already posted after they got tweeted
-async function markAsPosted (doc) {
+export async function markAsPosted (doc) {
   return await Text.updateOne( { _id: doc._id }, { already_posted: true, posted: createDateAsUTC() })
 };
 
 //get content for tweets from database based on category of tweet (vokabel or spruch)
-const getDatabaseContent = async category => {
+export async function getDatabaseContent (category: string) {
   const doc = await Text.findOne({ category: `${category}`, already_posted: false });
     if (category == undefined) {
       return 'No document found';
@@ -25,9 +25,6 @@ const getDatabaseContent = async category => {
       return doc
     }
 };
-
-module.exports = { getDatabaseContent, markAsPosted };
-
 
 
 // // helper function to save new vokabel or spruch to database (import data before use)

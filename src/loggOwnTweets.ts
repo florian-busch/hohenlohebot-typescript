@@ -1,17 +1,20 @@
 require('dotenv').config();
-const { loggErrors } = require('./loggErrors');
 const mongoose = require('mongoose');
 mongoose.connect(process.env.MONGOCONNECTION);
 
 //get mongoose Schema for retweets
-const { ownTweetsSchema } = require('./schemas/ownTweetsSchema');
+import { ownTweetsSchema } from './schemas/ownTweetsSchema';
 
-const { createDateAsUTC } = require('./helpers')
+import { createDateAsUTC } from './helpers';
+import { loggErrors } from './loggErrors';
+
+//interfaces
+import { Tweet } from "./interfaces/tweet.interface";
 
 //create mongoose model
 const ownTweetsModel = mongoose.model('ownTweets', ownTweetsSchema);
 
-const loggOwnTweets = (tweet, category) => {
+export function loggOwnTweets (tweet: Tweet, category: string): void {
     const newOwnTweet = new ownTweetsModel({
 
         category: category,
@@ -50,21 +53,13 @@ const loggOwnTweets = (tweet, category) => {
             listed_count: tweet.user.listed_count,
             created_at: tweet.user.created_at,
             favourites_count: tweet.user.favourites_count,
-            utc_offset: tweet.user.utc_offset,
-            time_zone: tweet.user.time_zone,
-            geo_enabled: tweet.user.geo_enabled,
             verified: tweet.user.verified,
             statuses_count: tweet.user.statuses_count,
-            lang: tweet.user.lang,
             contributors_enabled: tweet.user.contributors_enabled,
             is_translator: tweet.user.is_translator,
             is_translation_enabled: tweet.user.is_translation_enabled,
             profile_background_color: tweet.user.profile_background_color,
-            profile_background_image_url: tweet.user.profile_background_image_url,
-            profile_background_image_url_https: tweet.user.profile_background_image_url_https,
             profile_background_tile: tweet.user.profile_background_tile,
-            profile_image_url: tweet.user.profile_background_image_url,
-            profile_image_url_https: tweet.user.profile_background_image_url_https,
             profile_banner_url: tweet.user.profile_banner_url,
             profile_link_color: tweet.user.profile_link_color,
             profile_sidebar_border_color: tweet.user.profile_sidebar_border_color,
@@ -83,18 +78,14 @@ const loggOwnTweets = (tweet, category) => {
             geo: tweet.geo,
             coordinates: tweet.coordinates,
             place: tweet.place,
-            contributors: tweet.contributors,
             is_quote_status: tweet.is_quote_status,
             retweet_count: tweet.retweet_count,
             favorite_count: tweet.favorite_count,
             favorited: tweet.favorited,
             retweeted: tweet.retweeted,
-            lang: tweet.lang
         }
     });
    
     newOwnTweet.save().then(response => console.log(response))
     .catch(err => loggErrors( {category: 'SaveTweetToDB', message: err, tweet: tweet } ));
 };
-
-module.exports = { loggOwnTweets };

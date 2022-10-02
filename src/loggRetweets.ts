@@ -3,15 +3,18 @@ const mongoose = require('mongoose');
 mongoose.connect(process.env.MONGOCONNECTION);
 
 //get mongoose Schema for retweets
-const { retweetSchema } = require('./schemas/retweetsSchema');
-const { loggErrors } = require('./loggErrors');
-const { createDateAsUTC } = require('./helpers')
+import { retweetSchema } from './schemas/retweetsSchema';
+import { loggErrors } from './loggErrors';
+import { createDateAsUTC } from './helpers';
 
 //create mongoose model
 const retweetModel = mongoose.model('Retweets', retweetSchema);
 
-const loggRetweets = tweet => {
-    console.log(tweet)
+//interface
+import { Tweet } from "./interfaces/tweet.interface";
+
+export function loggRetweets (tweet: Tweet): void {
+
     const newRetweet = new retweetModel({
         created_at: createDateAsUTC(),
         id: tweet.id,
@@ -46,22 +49,14 @@ const loggRetweets = tweet => {
             friends_count: tweet.user.friends_count,
             listed_count: tweet.user.listed_count,
             created_at: tweet.user.created_at,
-            favourites_count: tweet.user.favorite_count,
-            utc_offset: tweet.user.utc_offset,
-            time_zone: tweet.user.time_zone,
-            geo_enabled: tweet.user.geo_enabled,
+            favourites_count: tweet.user.favourites_count,
             verified: tweet.user.verified,
             statuses_count: tweet.user.statuses_count,
-            lang: tweet.user.lang,
             contributors_enabled: tweet.user.contributors_enabled,
             is_translator: tweet.user.is_translator,
             is_translation_enabled: tweet.user.is_translation_enabled,
             profile_background_color: tweet.user.profile_background_color,
-            profile_background_image_url: tweet.user.profile_background_image_url,
-            profile_background_image_url_https: tweet.user.profile_background_image_url_https,
             profile_background_tile: tweet.user.profile_background_tile,
-            profile_image_url: tweet.user.profile_image_url,
-            profile_image_url_https: tweet.user.profile_background_image_url_https,
             profile_banner_url: tweet.user.profile_banner_url,
             profile_link_color: tweet.user.profile_link_color,
             profile_sidebar_border_color: tweet.user.profile_sidebar_border_color,
@@ -80,7 +75,6 @@ const loggRetweets = tweet => {
         geo: tweet.geo,
         coordinates: tweet.coordinates,
         place: tweet.place,
-        contributors: tweet.contributors,
         retweeted_status: {
             created_at: createDateAsUTC(),
             id: tweet.retweeted_status.id,
@@ -113,22 +107,14 @@ const loggRetweets = tweet => {
                 friends_count: tweet.retweeted_status.user.friends_count,
                 listed_count: tweet.retweeted_status.user.friends_count,
                 created_at: tweet.retweeted_status.user.created_at,
-                favourites_count: tweet.retweeted_status.user.favorite_count,
-                utc_offset: tweet.retweeted_status.user.utc_offset,
-                time_zone: tweet.retweeted_status.user.time_zone,
-                geo_enabled: tweet.retweeted_status.user.geo_enabled,
+                favourites_count: tweet.retweeted_status.user.favourites_count,
                 verified: tweet.retweeted_status.user.verified,
                 statuses_count: tweet.retweeted_status.user.statuses_count,
-                lang: tweet.retweeted_status.user.lang,
                 contributors_enabled: tweet.retweeted_status.user.contributors_enabled,
                 is_translator: tweet.retweeted_status.user.is_translator,
                 is_translation_enabled: tweet.retweeted_status.user.is_translation_enabled,
                 profile_background_color: tweet.retweeted_status.user.profile_background_color,
-                profile_background_image_url: tweet.retweeted_status.user.profile_background_image_url,
-                profile_background_image_url_https: tweet.retweeted_status.user.profile_background_image_url_https,
                 profile_background_tile: tweet.retweeted_status.user.profile_background_tile,
-                profile_image_url: tweet.retweeted_status.user.profile_image_url,
-                profile_image_url_https: tweet.retweeted_status.user.profile_image_url_https,       
                 profile_link_color: tweet.retweeted_status.user.profile_link_color,
                 profile_sidebar_border_color: tweet.retweeted_status.user.profile_sidebar_border_color,
                 profile_sidebar_fill_color: tweet.retweeted_status.user.profile_sidebar_fill_color,
@@ -146,25 +132,20 @@ const loggRetweets = tweet => {
             geo: tweet.retweeted_status.geo,
             coordinates: tweet.retweeted_status.coordinates,
             place: tweet.retweeted_status.place,
-            contributors: tweet.retweeted_status.contributors,
             is_quote_status: tweet.retweeted_status.is_quote_status,
             retweet_count: tweet.retweeted_status.retweet_count,
             favorite_count: tweet.retweeted_status.favorite_count,
             favorited: tweet.retweeted_status.favorited,
             retweeted: tweet.retweeted_status.retweeted,
-            lang: tweet.retweeted_status.lang
         },
         is_quote_status: tweet.is_quote_status,
         retweet_count: tweet.retweet_count,
         favorite_count: tweet.favorite_count,
         favorited: tweet.favorited,
         retweeted: tweet.retweeted,
-        lang: tweet.lang
     });
    
     newRetweet.save()
     .then(response => console.log(response))
     .catch(err => loggErrors( {category: 'RetweetSave', message: err, tweet: tweet } ));
 };
-
-module.exports = { loggRetweets };
