@@ -1,6 +1,5 @@
 require('dotenv').config();
-const mongoose = require('mongoose');
-mongoose.connect(process.env.MONGOCONNECTION);
+import { connect, model } from 'mongoose';
 
 //get Schema from schema file
 import { textSchema } from './schemas/textSchema';
@@ -8,8 +7,10 @@ import { textSchema } from './schemas/textSchema';
 //get helpers
 import { createDateAsUTC } from './helpers';
 
+
 //Model setup
-const Text = mongoose.model('Text', textSchema);
+connect(process.env.MONGOCONNECTION);
+const Text = model('Text', textSchema);
 
 //mark texts as already posted after they got tweeted
 export async function markAsPosted (doc) {

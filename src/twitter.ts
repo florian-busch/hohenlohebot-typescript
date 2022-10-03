@@ -51,13 +51,13 @@ function gotTweet(tweet: Tweet) {
   if (blocks.includes(tweet.user.id)) {
     loggErrors( {category: 'BlockedUser', message: `Blocked User with id: ${tweet.user.id}`, tweet: tweet } )
   } else if (checkForBlockedWords(tweet.text)) {
-    loggErrors( { category: 'BlockedWord', message: `Blocked word in tweet: with id: ${tweet.text}`, tweet: tweet } )
+    loggErrors( { category: 'BlockedWord', message: `Blocked word in tweet ${tweet.text}`, tweet: tweet } )
 
     //if no blocked users and no blocked words --> retweet tweet
   } else if(!blocks.includes(tweet.user.id) && !checkForBlockedWords(tweet.text)) {
     T.post('statuses/retweet', { id: tweet.id_str }, retweeted);
 
-    function retweeted(err, tweet, response) {
+    function retweeted(err, tweet, response): void {
       //if error at retweeting --> logg error
       if (err) {
         console.log(err);
@@ -71,10 +71,9 @@ function gotTweet(tweet: Tweet) {
     loggErrors( {category: 'ErrorRetweeting', tweet: tweet } );
   }
 };
-console.log('Bot listening');
 
 //function for tweeting Muswiesentweet, Sprüche and Vokabeln
-export async function sendTweet (category: string) {
+export async function sendTweet (category: string): Promise<void> {
   let content;
   if (category == 'MuswiesenCountdown') {
     content = await getMuswiesenContent();
@@ -101,5 +100,3 @@ export async function sendTweet (category: string) {
       loggErrors( {category: 'TweetRetrieving', message: `No tweet in DB for category: ${category}` } )
     }
 };
-
-module.exports = { getBlockedUsers, checkForBlockedWords, sendTweet };

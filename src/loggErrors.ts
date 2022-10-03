@@ -1,6 +1,6 @@
 require('dotenv').config();
-const mongoose = require('mongoose');
-mongoose.connect(process.env.MONGOCONNECTION);
+import { connect, model } from 'mongoose';
+connect(process.env.MONGOCONNECTION);
 
 //get helpers
 import {createDateAsUTC } from './helpers';
@@ -11,7 +11,7 @@ import { Error } from './interfaces/error.interface';
 import { errorSchema } from './schemas/errorSchema';
 
 //create mongoose model
-const errorModel = mongoose.model('errorSchema', errorSchema);
+const errorModel = model('errorSchema', errorSchema);
 
 export function loggErrors (error: Error) {
     const newError = new errorModel({

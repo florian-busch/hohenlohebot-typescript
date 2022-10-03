@@ -1,6 +1,6 @@
 require('dotenv').config();
-const mongoose = require('mongoose');
-mongoose.connect(process.env.MONGOCONNECTION);
+import { connect, model } from 'mongoose';
+connect(process.env.MONGOCONNECTION);
 
 //get mongoose Schema for retweets
 import { retweetSchema } from './schemas/retweetsSchema';
@@ -8,7 +8,7 @@ import { loggErrors } from './loggErrors';
 import { createDateAsUTC } from './helpers';
 
 //create mongoose model
-const retweetModel = mongoose.model('Retweets', retweetSchema);
+const retweetModel = model('Retweets', retweetSchema);
 
 //interface
 import { Tweet } from "./interfaces/tweet.interface";

@@ -1,6 +1,6 @@
 require('dotenv').config();
-const mongoose = require('mongoose');
-mongoose.connect(process.env.MONGOCONNECTION);
+import { connect, model } from 'mongoose';
+connect(process.env.MONGOCONNECTION);
 
 //get mongoose Schema for retweets
 import { ownTweetsSchema } from './schemas/ownTweetsSchema';
@@ -12,7 +12,7 @@ import { loggErrors } from './loggErrors';
 import { Tweet } from "./interfaces/tweet.interface";
 
 //create mongoose model
-const ownTweetsModel = mongoose.model('ownTweets', ownTweetsSchema);
+const ownTweetsModel = model('ownTweets', ownTweetsSchema);
 
 export function loggOwnTweets (tweet: Tweet, category: string): void {
     const newOwnTweet = new ownTweetsModel({

@@ -1,4 +1,4 @@
-const { Schema } = require('mongoose');
+import { Schema } from 'mongoose';
 
 export const retweetSchema = new Schema({
   created_at: Date,

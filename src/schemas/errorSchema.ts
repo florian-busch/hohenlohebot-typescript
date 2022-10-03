@@ -1,4 +1,4 @@
-const { Schema } = require('mongoose');
+import { Schema } from 'mongoose';
 
 export const errorSchema = new Schema({
   //TO DO: implement error logging for retweet fail and get blocked user fail

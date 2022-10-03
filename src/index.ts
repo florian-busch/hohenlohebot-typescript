@@ -1,4 +1,4 @@
-const cron = require('node-cron');
+import { schedule } from 'node-cron';
 
 //daily statistics mail
 import { sendDailyMail } from './mailer';
@@ -17,16 +17,16 @@ import { checkIfTodayMuswiese } from './muswiesenContent';
 
 //get blocked users once at start and then once an hour
 getBlockedUsers();
-cron.schedule("* 30 * * * *", function() {
+schedule("* 30 * * * *", function() {
   getBlockedUsers()
 });
 
-cron.schedule("0 00 10 * * *", function() {
+schedule("0 00 10 * * *", function() {
   updateTweetData()
 });
 
 //Muswiesentweet every sunday and thursday
-cron.schedule("0 33 16 * * 0,4", function() {
+schedule("0 33 16 * * 0,4", function() {
   if (checkIfTodayMuswiese()) {
     sendTweet('daysOfMuswiese')
   } else {
@@ -35,7 +35,7 @@ cron.schedule("0 33 16 * * 0,4", function() {
 });
 
 //Muswiesentweet every tuesday and saturday
-cron.schedule("0 33 10 * * 2,6", function() {
+schedule("0 33 10 * * 2,6", function() {
   if (checkIfTodayMuswiese()) {
     sendTweet('daysOfMuswiese')
   } else {
@@ -44,16 +44,16 @@ cron.schedule("0 33 10 * * 2,6", function() {
 });
 
 //Vokabel-Tweet every wednesday, friday and sunday at 4.12 pm
-cron.schedule("0 12 16 * * 3,5", function() {
+schedule("0 12 16 * * 3,5", function() {
   sendTweet('Vokabel');
 });
 
 //Spruch-Tweet every monday and thursday at 2.30 pm
-cron.schedule("0 30 13 * * 1,4", function() {
+schedule("0 30 13 * * 1,4", function() {
   sendTweet('Spruch');
 });
 
 //send daily mail with statistics about yesterdays tweets and retweets
-cron.schedule("0 30 9 * * *", function() {
+schedule("0 30 9 * * *", function() {
   sendDailyMail()
 });

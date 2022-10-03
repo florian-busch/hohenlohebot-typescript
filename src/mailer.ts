@@ -4,8 +4,8 @@ const sgMail = require('@sendgrid/mail')
 import { loggErrors } from './loggErrors';
 
 //setup mongoose connection
-const mongoose = require('mongoose');
-mongoose.connect(process.env.MONGOCONNECTION);
+import { connect, model } from 'mongoose';
+connect(process.env.MONGOCONNECTION);
 
 //get mongoose Schemas for retweets, own tweets and errors
 import { retweetSchema } from './schemas/retweetsSchema';
@@ -18,9 +18,9 @@ import { Tweet } from './interfaces/tweet.interface';
 import { Error } from './interfaces/error.interface';
 
 //set up mongoose models
-const ownTweetsModel = mongoose.model('ownTweets', ownTweetsSchema);
-const retweetModel = mongoose.model('Retweets', retweetSchema);
-const errorModel = mongoose.model('errorSchema', errorSchema);
+const ownTweetsModel = model('ownTweets', ownTweetsSchema);
+const retweetModel = model('Retweets', retweetSchema);
+const errorModel = model('errorSchema', errorSchema);
 
 //calculate time objects for db queries
 const getYesterdayStart = (): Date => {
